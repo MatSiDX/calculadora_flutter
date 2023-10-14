@@ -44,7 +44,11 @@ class _CalculadoraState extends State<Calculadora> {
     if (buttonText == 'C') {
       clearDisplay();
     } else if (buttonText == '=') {
-      calculateResult();
+      if (operator == '^') {
+        calculateExponent();
+      } else {
+        calculateResult();
+      }
     } else if (buttonText == '+' ||
         buttonText == '-' ||
         buttonText == 'x' ||
@@ -53,7 +57,16 @@ class _CalculadoraState extends State<Calculadora> {
     } else if (buttonText == '√') {
       calculateSquareRoot();
     } else if (buttonText == '^') {
-      calculateExponent();
+      setOperator("^");
+    } else if (buttonText == 'sin' ||
+        buttonText == 'cos' ||
+        buttonText == 'tan' ||
+        buttonText == 'cot' ||
+        buttonText == 'sec' ||
+        buttonText == 'csc') {
+      calculateTrigonometricFunction(buttonText);
+    } else if (buttonText == 'π') {
+      addPi();
     } else {
       updateDisplay(buttonText);
     }
@@ -139,6 +152,52 @@ class _CalculadoraState extends State<Calculadora> {
     });
   }
 
+  void calculateTrigonometricFunction(String function) {
+    setState(() {
+      num1 = double.parse(display);
+      double result;
+
+      // Inicializar result en caso de que no entre en ninguno de los casos
+      result = 0.0; // O cualquier otro valor predeterminado
+
+      switch (function) {
+        case 'sin':
+          result = sin(num1);
+          break;
+        case 'cos':
+          result = cos(num1);
+          break;
+        case 'tan':
+          result = tan(num1);
+          break;
+        case 'cot':
+          result = 1 / tan(num1);
+          break;
+        case 'sec':
+          result = 1 / cos(num1);
+          break;
+        case 'csc':
+          result = 1 / sin(num1);
+          break;
+      }
+
+      display = result.toString();
+      operator = '';
+      shouldClear = true;
+    });
+  }
+
+  void addPi() {
+    setState(() {
+      if (shouldClear) {
+        display = pi.toString();
+        shouldClear = false;
+      } else {
+        display = display == '0' ? pi.toString() : display + pi.toString();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -183,6 +242,13 @@ class _CalculadoraState extends State<Calculadora> {
                   '+',
                   '√',
                   '^',
+                  'sin',
+                  'cos',
+                  'tan',
+                  'cot',
+                  'sec',
+                  'csc',
+                  'π',
                 ][index];
                 return InkWell(
                   onTap: () {
@@ -207,7 +273,7 @@ class _CalculadoraState extends State<Calculadora> {
                   ),
                 );
               },
-              itemCount: 18,
+              itemCount: 25,
             ),
           ),
         ],
